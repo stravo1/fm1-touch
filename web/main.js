@@ -478,8 +478,10 @@ function keyId(k) {
   return b === undefined ? -1 : b;
 }
 const padKey = (k) => (board === 1 && /^[1-8]$/.test(k) ? Number(k) - 1 : -1);
+// (typing in a field, such as the firmware search, is not playing)
+const isTyping = (e) => Boolean(e.target.closest?.("input, select, textarea"));
 addEventListener("keydown", (e) => {
-  if (e.metaKey || e.ctrlKey || e.target instanceof HTMLSelectElement) return;
+  if (e.metaKey || e.ctrlKey || isTyping(e)) return;
   if (ENC_KEYS[e.key]) { e.preventDefault(); turn(...ENC_KEYS[e.key]); return; }
   const pad = padKey(e.key);
   if (pad >= 0) { e.preventDefault(); if (!e.repeat) setAnalog(pad, 700); return; }
@@ -490,6 +492,7 @@ addEventListener("keydown", (e) => {
   setKey(id, true);
 });
 addEventListener("keyup", (e) => {
+  if (isTyping(e)) return;
   const pad = padKey(e.key);
   if (pad >= 0) { setAnalog(pad, 0); return; }
   const id = keyId(e.key);

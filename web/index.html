@@ -48,10 +48,10 @@
     <button type="button" id="sheet-close" class="button icon-only ghost" aria-label="Close settings"><span data-icon="x"></span></button>
   </header>
 
-  <label class="control">
-    <span class="label">Firmware</span>
-    <select id="fw" class="input"></select>
-  </label>
+  <div class="control">
+    <span class="label" id="fw-label">Firmware</span>
+    <select id="fw" aria-labelledby="fw-label" data-combobox></select>
+  </div>
   <button type="button" id="start" class="button solid large" disabled><span data-icon="play"></span>Start</button>
 
   <details>
@@ -124,6 +124,7 @@
 
 <script type="module" src="icons.js"></script>
 <script type="module" src="accent.js"></script>
+<script type="module" src="combobox.js"></script>
 <script type="module" src="update.js"></script>
 <script type="module" src="main.js"></script>
 </body>

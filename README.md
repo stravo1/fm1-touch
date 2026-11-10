@@ -41,6 +41,7 @@ The `upstream/` folder is the emulator, pinned as a git submodule. This reposito
 - `web/index.html` and `web/style.css`: the page, styled with the Frappe UI Espresso tokens (dark mode).
 - `web/icons.js`: the Lucide icons that the page uses, inline so they work offline.
 - `web/accent.js`: the color picker in settings. A color sets the synth body and the page accent.
+- `web/combobox.js`: the searchable firmware picker, in the style of the Frappe UI Autocomplete.
 - `web/update.js`: the update check for the installed app.
 - `patches/`: changes to upstream that the build applies, and then removes. `panel-body-color.patch` lets
   the page set the body color of the panel.
