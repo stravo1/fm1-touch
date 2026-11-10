@@ -12,6 +12,9 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,68 +22,94 @@
   <canvas id="panel" aria-label="FM-1 front panel"></canvas>
 </main>
 
-<button type="button" id="gear" aria-label="Settings">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
-</button>
+<button type="button" id="gear" class="button icon-only ghost" aria-label="Settings"><span data-icon="sliders-horizontal" data-size="20"></span></button>
 
-<div id="perfwarn" role="alert" hidden>
-  <p id="perfwarn-text"></p>
-  <div class="row">
-    <button type="button" id="perfwarn-fix" class="primary"></button>
-    <button type="button" id="perfwarn-copy">Copy a report</button>
-    <button type="button" id="perfwarn-close" aria-label="Dismiss">✕</button>
+<div id="perfwarn" class="alert" role="alert" hidden>
+  <span data-icon="triangle-alert" class="alert-icon"></span>
+  <div class="alert-body">
+    <p id="perfwarn-text"></p>
+    <div class="row">
+      <button type="button" id="perfwarn-fix" class="button solid"></button>
+      <button type="button" id="perfwarn-copy" class="button subtle">Copy a report</button>
+    </div>
   </div>
+  <button type="button" id="perfwarn-close" class="button icon-only ghost" aria-label="Dismiss"><span data-icon="x"></span></button>
 </div>
 
-<section id="sheet" aria-labelledby="title">
-  <div class="sheet-head">
+<section id="sheet" class="dialog" aria-labelledby="title">
+  <header class="dialog-head">
     <h1 id="title">FM-1</h1>
-    <button type="button" id="sheet-close" aria-label="Close settings">✕</button>
-  </div>
-  <label class="field">Firmware <select id="fw" aria-label="Firmware"></select></label>
-  <button type="button" id="start" disabled>Start</button>
+    <button type="button" id="sheet-close" class="button icon-only ghost" aria-label="Close settings"><span data-icon="x"></span></button>
+  </header>
+
+  <label class="control">
+    <span class="label">Firmware</span>
+    <select id="fw" class="input"></select>
+  </label>
+  <button type="button" id="start" class="button solid large" disabled><span data-icon="play"></span>Start</button>
 
   <details>
-    <summary>More</summary>
-    <p id="about"></p>
-    <label class="field">Clock <select id="mhz" aria-label="Emulated clock"></select></label>
-    <div class="row">
-      <label class="file">Open .fwsc… <input type="file" id="open"></label>
-      <label class="file">DX7 bank… <input type="file" id="bank"></label>
-      <span id="bankname" class="dim"></span>
-      <button type="button" id="fullscreen">Full screen</button>
+    <summary><span data-icon="chevron-right" class="chevron"></span>More settings</summary>
+
+    <div class="group">
+      <p id="about" class="text"></p>
+      <label class="control">
+        <span class="label">Clock</span>
+        <select id="mhz" class="input"></select>
+      </label>
+      <div class="row">
+        <label class="button subtle file"><span data-icon="folder-open"></span>Open .fwsc <input type="file" id="open"></label>
+        <label class="button subtle file"><span data-icon="music"></span>DX7 bank <input type="file" id="bank"></label>
+        <button type="button" id="fullscreen" class="button subtle"><span data-icon="maximize"></span>Full screen</button>
+      </div>
+      <span id="bankname" class="hint"></span>
     </div>
 
-    <h2>MIDI</h2>
-    <label class="field" id="midiin">Input <span class="sel"><span id="midiact" aria-hidden="true"></span><select id="midi" aria-label="MIDI input"><option value="">off</option><option value="*">all inputs</option></select></span></label>
-    <label class="field">Channel <select id="midich" aria-label="MIDI channel"><option value="0">as sent</option></select></label>
-
-    <h2>Save</h2>
-    <p id="save-status" role="status" aria-live="polite">Start to restore saved settings and patches</p>
-    <div class="row">
-      <button type="button" id="save-now">Save now</button>
-      <button type="button" id="export-save">Export…</button>
-      <label class="file">Import… <input type="file" id="import-save" accept=".json,.fm1save"></label>
-      <button type="button" id="update-firmware">Check for updates</button>
-      <button type="button" id="reset-save">Reset flash…</button>
-    </div>
-    <div class="row">
-      <button type="button" id="browse-saves">Saved firmwares</button>
-      <select id="saved-versions" aria-label="Saved firmware versions"></select>
-      <button type="button" id="open-saved-version">Open</button>
+    <div class="group">
+      <h2 class="group-title">MIDI</h2>
+      <div class="columns">
+        <label class="control" id="midiin">
+          <span class="label">Input <span id="midiact" aria-hidden="true"></span></span>
+          <select id="midi" class="input"><option value="">off</option><option value="*">all inputs</option></select>
+        </label>
+        <label class="control">
+          <span class="label">Channel</span>
+          <select id="midich" class="input"><option value="0">as sent</option></select>
+        </label>
+      </div>
     </div>
 
-    <p id="status">Press Start to boot</p>
-    <p class="dim">Based on <a href="https://github.com/joakimeriksson/fm1-emu">fm1-emu</a> by Joakim Eriksson (MIT).
-      Firmwares download from their authors' sites. Not affiliated with M-VAVE.</p>
+    <div class="group">
+      <h2 class="group-title">Saves</h2>
+      <p id="save-status" class="hint" role="status" aria-live="polite">Start to restore saved settings and patches</p>
+      <div class="row">
+        <button type="button" id="save-now" class="button subtle"><span data-icon="save"></span>Save now</button>
+        <button type="button" id="export-save" class="button subtle"><span data-icon="download"></span>Export</button>
+        <label class="button subtle file"><span data-icon="upload"></span>Import <input type="file" id="import-save" accept=".json,.fm1save"></label>
+        <button type="button" id="update-firmware" class="button subtle"><span data-icon="refresh-cw"></span>Check for updates</button>
+        <button type="button" id="reset-save" class="button subtle danger"><span data-icon="rotate-ccw"></span>Reset flash</button>
+      </div>
+      <div class="row">
+        <button type="button" id="browse-saves" class="button subtle"><span data-icon="history"></span>Saved firmwares</button>
+        <select id="saved-versions" class="input grow" aria-label="Saved firmware versions"></select>
+        <button type="button" id="open-saved-version" class="button subtle">Open</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <p id="status" class="mono">Press Start to boot</p>
+      <p class="hint">Based on <a href="https://github.com/joakimeriksson/fm1-emu">fm1-emu</a> by Joakim Eriksson (MIT).
+        Firmwares download from their authors' sites. Not affiliated with M-VAVE.</p>
+    </div>
   </details>
 </section>
 
 <div id="rotate" aria-live="polite">
-  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M20 15a8 8 0 0 1-5 6M18 21h-3v-3"/></svg>
+  <span class="rotate-icon"><span data-icon="smartphone" data-size="48"></span><span data-icon="rotate-cw" data-size="24"></span></span>
   <p>Turn your device sideways to play.</p>
 </div>
 
+<script type="module" src="icons.js"></script>
 <script type="module" src="main.js"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 // copy when there is no network. Firmware downloads are other sites' and pass through: the page
 // keeps each firmware it played in IndexedDB (persistence.js).
 const CACHE = "fm1-touch";
-const SHELL = ["./", "index.html", "style.css", "main.js", "touch.js", "fwsc.js", "persistence.js", "tryout.js",
+const SHELL = ["./", "index.html", "style.css", "main.js", "touch.js", "icons.js", "fwsc.js", "persistence.js", "tryout.js",
   "worklet.js", "jit.js", "firmwares.json", "fm1_web.wasm", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (event) => {
