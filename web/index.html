@@ -52,6 +52,13 @@
     <summary><span data-icon="chevron-right" class="chevron"></span>More settings</summary>
 
     <div class="group">
+      <div class="control">
+        <span class="label" id="accent-label">Color</span>
+        <div id="accents" class="swatches" role="radiogroup" aria-labelledby="accent-label"></div>
+      </div>
+    </div>
+
+    <div class="group">
       <p id="about" class="text"></p>
       <label class="control">
         <span class="label">Clock</span>
@@ -105,11 +112,12 @@
 </section>
 
 <div id="rotate" aria-live="polite">
-  <span class="rotate-icon"><span data-icon="smartphone" data-size="48"></span><span data-icon="rotate-cw" data-size="24"></span></span>
+  <span class="rotate-icon" data-icon="rotate-cw-square" data-size="64"></span>
   <p>Turn your device sideways to play.</p>
 </div>
 
 <script type="module" src="icons.js"></script>
+<script type="module" src="accent.js"></script>
 <script type="module" src="main.js"></script>
 </body>
 </html>

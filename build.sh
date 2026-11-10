@@ -7,5 +7,5 @@ OUT="${1:-$ROOT/_site}"
 mkdir -p "$OUT" && OUT="$(cd "$OUT" && pwd)"
 "$ROOT/upstream/web/build.sh" "$OUT" >/dev/null
 rm -rf "$OUT/smk37" "$OUT/fm1-emu-report.pdf" "$OUT/og.png"
-cp "$ROOT"/web/{index.html,style.css,main.js,touch.js,icons.js,sw.js,manifest.webmanifest,icon.svg,icon-192.png,icon-512.png} "$OUT/"
+cp "$ROOT"/web/{index.html,style.css,main.js,touch.js,icons.js,accent.js,sw.js,manifest.webmanifest,icon.svg,icon-192.png,icon-512.png} "$OUT/"
 echo "built $OUT"

@@ -3,11 +3,12 @@
 :root {
   color-scheme: dark;
   --surface-base: #0f0f0f; --surface-modal: #1c1c1c; --surface-gray-2: #262626; --surface-gray-3: #2e2e2e;
-  --surface-gray-4: #383838; --solid: #f8f8f8; --solid-hover: #ededed; --on-solid: #171717;
+  --surface-gray-4: #383838;
   --outline-gray-1: #262626; --outline-gray-2: #2e2e2e; --outline-gray-3: #424242;
   --ink-gray-9: #f8f8f8; --ink-gray-8: #ededed; --ink-gray-7: #c7c7c7; --ink-gray-5: #999999; --ink-gray-4: #7c7c7c;
   --ink-red-4: #f87171; --surface-amber-1: #2a1f0e; --outline-amber-2: #6b4a14; --ink-amber-3: #f5b041;
   --scrim: rgba(0, 0, 0, .6); --shadow-2xl: 0 24px 48px -12px rgba(0, 0, 0, .6);
+  --accent: #f2a33a; --on-accent: #171717;   /* (accent.js sets the chosen one) */
   --radius: 8px; --radius-xl: 12px; --radius-2xl: 16px;
   --text-xs: 11px; --text-sm: 12px; --text-base: 13px; --text-lg: 14px; --text-xl: 16px; --text-2xl: 18px;
   --safe-w: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right));
@@ -19,9 +20,9 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
              font-feature-settings: "cv11", "ss01"; -webkit-font-smoothing: antialiased; }
 /* no text selection, callouts or tap flashes: a long press is a held button */
 body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
-a { color: var(--ink-gray-9); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--outline-gray-3); }
+a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
 p { margin: 0; }
-:focus-visible { outline: 2px solid var(--outline-gray-3); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 [data-icon] { display: inline-flex; flex: none; }
 
 /* ---------------------------------------------------------------- the synth */
@@ -40,8 +41,8 @@ p { margin: 0; }
 .button.subtle:hover { background: var(--surface-gray-3); }
 .button.subtle:active { background: var(--surface-gray-4); }
 .button.ghost:hover { background: var(--surface-gray-2); }
-.button.solid { background: var(--solid); color: var(--on-solid); }
-.button.solid:hover { background: var(--solid-hover); }
+.button.solid { background: var(--accent); color: var(--on-accent); }
+.button.solid:hover { filter: brightness(1.08); }
 .button.large { height: 40px; padding: 0 14px; font-size: var(--text-lg); border-radius: 10px; }
 .button.danger { color: var(--ink-red-4); }
 .button.icon-only { width: 32px; padding: 0; }
@@ -57,6 +58,10 @@ p { margin: 0; }
 .input:hover { background-color: var(--surface-gray-3); }
 .input:focus-visible { outline: none; border-color: var(--outline-gray-3); background-color: var(--surface-gray-3); }
 .grow { flex: 1 1 140px; }
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.swatch { width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; background: var(--swatch);
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
+.swatch[aria-checked="true"] { box-shadow: 0 0 0 2px var(--surface-modal), 0 0 0 4px var(--swatch); }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .hint { font-size: var(--text-sm); color: var(--ink-gray-5); overflow-wrap: anywhere; }
@@ -73,6 +78,7 @@ p { margin: 0; }
           padding: 20px 16px 20px; display: flex; flex-direction: column; gap: 16px; background: var(--surface-modal);
           border-radius: var(--radius-xl); box-shadow: var(--shadow-2xl), 0 0 0 100vmax var(--scrim); }
 .dialog[hidden] { display: none; }
+.dialog > * { flex-shrink: 0; }   /* (it scrolls when tall: no squeezed controls) */
 .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 h1 { margin: 0; font-size: var(--text-2xl); font-weight: 600; color: var(--ink-gray-9); overflow-wrap: anywhere; }
 #sheet-close { display: none; }
@@ -90,7 +96,7 @@ details[open] .chevron { transform: rotate(90deg); }
 #about .links { display: flex; flex-wrap: wrap; gap: 2px 12px; margin: 2px 0 6px; }
 #about .what { display: block; }
 #midiact { width: 6px; height: 6px; border-radius: 50%; background: var(--outline-gray-3); }
-#midiact.on { background: var(--ink-amber-3); }
+#midiact.on { background: var(--accent); }
 
 /* ---------------------------------------------------------------- the device can't keep up (an Espresso alert) */
 .alert { position: fixed; z-index: 2; left: 50%; top: calc(env(safe-area-inset-top) + 8px); transform: translateX(-50%);
@@ -106,5 +112,5 @@ details[open] .chevron { transform: rotate(90deg); }
   #rotate { position: fixed; inset: 0; z-index: 3; display: grid; place-content: center; justify-items: center;
             gap: 16px; padding: 24px; text-align: center; background: var(--surface-base); color: var(--ink-gray-5); }
   #rotate p { font-size: var(--text-xl); font-weight: 500; color: var(--ink-gray-9); }
-  .rotate-icon { display: flex; align-items: flex-start; gap: 4px; }
+  .rotate-icon { color: var(--accent); }
 }

@@ -32,6 +32,7 @@ The `upstream/` folder is the emulator, pinned as a git submodule. This reposito
 
 - `web/index.html` and `web/style.css`: the page, styled with the Frappe UI Espresso tokens (dark mode).
 - `web/icons.js`: the Lucide icons that the page uses, inline so they work offline.
+- `web/accent.js`: the accent color picker in settings. The browser keeps the chosen color.
 - `web/main.js`: a fork of `upstream/web/main.js`, with the touch input and without the upstream page sections.
 - `web/touch.js`: the hit test and knob drag for fingers.
 - `web/sw.js`, `web/manifest.webmanifest`: the service worker and manifest that make the page an installable app.
