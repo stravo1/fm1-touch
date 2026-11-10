@@ -1,0 +1,10 @@
+{
+  "name": "FM-1 Touch",
+  "short_name": "FM-1",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#18191b",
+  "theme_color": "#18191b",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

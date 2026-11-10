@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>FM-1 Touch</title>
+<meta name="description" content="The M-VAVE FM-1 pocket synth, emulated in the browser, made for touch screens.">
+<meta name="theme-color" content="#18191b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="stage">
+  <canvas id="panel" aria-label="FM-1 front panel"></canvas>
+</main>
+
+<button type="button" id="gear" aria-label="Settings">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+</button>
+
+<div id="perfwarn" role="alert" hidden>
+  <p id="perfwarn-text"></p>
+  <div class="row">
+    <button type="button" id="perfwarn-fix" class="primary"></button>
+    <button type="button" id="perfwarn-copy">Copy a report</button>
+    <button type="button" id="perfwarn-close" aria-label="Dismiss">✕</button>
+  </div>
+</div>
+
+<section id="sheet" aria-labelledby="title">
+  <div class="sheet-head">
+    <h1 id="title">FM-1</h1>
+    <button type="button" id="sheet-close" aria-label="Close settings">✕</button>
+  </div>
+  <label class="field">Firmware <select id="fw" aria-label="Firmware"></select></label>
+  <button type="button" id="start" disabled>Start</button>
+
+  <details>
+    <summary>More</summary>
+    <p id="about"></p>
+    <label class="field">Clock <select id="mhz" aria-label="Emulated clock"></select></label>
+    <div class="row">
+      <label class="file">Open .fwsc… <input type="file" id="open"></label>
+      <label class="file">DX7 bank… <input type="file" id="bank"></label>
+      <span id="bankname" class="dim"></span>
+      <button type="button" id="fullscreen">Full screen</button>
+    </div>
+
+    <h2>MIDI</h2>
+    <label class="field" id="midiin">Input <span class="sel"><span id="midiact" aria-hidden="true"></span><select id="midi" aria-label="MIDI input"><option value="">off</option><option value="*">all inputs</option></select></span></label>
+    <label class="field">Channel <select id="midich" aria-label="MIDI channel"><option value="0">as sent</option></select></label>
+
+    <h2>Save</h2>
+    <p id="save-status" role="status" aria-live="polite">Start to restore saved settings and patches</p>
+    <div class="row">
+      <button type="button" id="save-now">Save now</button>
+      <button type="button" id="export-save">Export…</button>
+      <label class="file">Import… <input type="file" id="import-save" accept=".json,.fm1save"></label>
+      <button type="button" id="update-firmware">Check for updates</button>
+      <button type="button" id="reset-save">Reset flash…</button>
+    </div>
+    <div class="row">
+      <button type="button" id="browse-saves">Saved firmwares</button>
+      <select id="saved-versions" aria-label="Saved firmware versions"></select>
+      <button type="button" id="open-saved-version">Open</button>
+    </div>
+
+    <p id="status">Press Start to boot</p>
+    <p class="dim">Based on <a href="https://github.com/joakimeriksson/fm1-emu">fm1-emu</a> by Joakim Eriksson (MIT).
+      Firmwares download from their authors' sites. Not affiliated with M-VAVE.</p>
+  </details>
+</section>
+
+<div id="rotate" aria-live="polite">
+  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M20 15a8 8 0 0 1-5 6M18 21h-3v-3"/></svg>
+  <p>Turn your device sideways to play.</p>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
