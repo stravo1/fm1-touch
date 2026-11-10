@@ -13,7 +13,16 @@ settings sheet behind the gear button.
 - A finger near a control, but not exactly on it, still finds it.
 - Play with many fingers at the same time.
 - Hold the device in landscape. In portrait, the page asks you to turn the device.
-- On a touch device, Start goes full screen. On an iPhone, use **Add to Home Screen** to get a full-screen app.
+- On a touch device, Start goes full screen.
+
+## Install it as an app
+
+The page is a progressive web app (PWA). Install it to get a full-screen app without the browser bar:
+
+- Android (Chrome): open the menu, then select **Install app**.
+- iPhone and iPad (Safari): select **Share**, then **Add to Home Screen**.
+
+After you play a firmware once, the app also works offline. The browser keeps each firmware that you played.
 
 Links keep a setup, for example `?fw=mono2k&mhz=100`.
 
@@ -24,6 +33,7 @@ The `upstream/` folder is the emulator, pinned as a git submodule. This reposito
 - `web/index.html` and `web/style.css`: the page.
 - `web/main.js`: a fork of `upstream/web/main.js`, with the touch input and without the upstream page sections.
 - `web/touch.js`: the hit test and knob drag for fingers.
+- `web/sw.js`, `web/manifest.webmanifest`: the service worker and manifest that make the page an installable app.
 
 ```sh
 git submodule update --init

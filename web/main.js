@@ -1125,3 +1125,6 @@ document.getElementById("open-saved-version").addEventListener("click", action(a
   if (node) await boot();
   else status.textContent = `${record.name} saved version ready: click Start`;
 }));
+
+// installable and playable offline (sw.js)
+navigator.serviceWorker?.register("sw.js");
