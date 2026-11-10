@@ -33,3 +33,13 @@ test("a knob drag gives whole clicks and keeps the remainder", () => {
   assert.equal(drag.clicks(0, 4), 0);
   assert.equal(drag.clicks(0, 10), -1);
 });
+
+test("a higher knob sensitivity needs less finger travel per click", async () => {
+  const { knobStep, potPerPx, KNOB_STEP, POT_PER_PX } = await import("./touch.js");
+  assert.equal(knobStep(1), KNOB_STEP);
+  assert.equal(knobStep(2), KNOB_STEP / 2);
+  assert.equal(knobStep(0.5), KNOB_STEP * 2);
+  assert.equal(potPerPx(2), POT_PER_PX * 2);
+  const fast = new KnobDrag(knobStep(2));
+  assert.equal(fast.clicks(0, -8), 2);
+});

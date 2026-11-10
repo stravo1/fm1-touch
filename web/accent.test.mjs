@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { ACCENTS, ON_ACCENT, AccentPicker, accentOf, shade } from "./accent.js";
+import { Preference } from "./preferences.js";
 
 // WCAG 2 contrast ratio of two #rrggbb colors
 function luminance(hex) {
@@ -48,16 +49,16 @@ const memory = () => { const m = new Map(); return { getItem: (k) => m.get(k) ??
 test("a chosen accent is set on the page and kept for the next visit", () => {
   const storage = memory();
   const doc = fakeDocument();
-  new AccentPicker(doc, storage).choose("teal");
+  new AccentPicker(doc, new Preference("accent", "graphite", storage)).choose("teal");
   assert.equal(doc.props["--accent"], "#2dd4bf");
   assert.equal(doc.page.dataset.body, accentOf("teal").body.map((hex) => hex.slice(1)).join(","));
   assert.deepEqual(doc.events, ["bodycolor"]);
-  assert.equal(new AccentPicker(fakeDocument(), storage).current.id, "teal");
+  assert.equal(new AccentPicker(fakeDocument(), new Preference("accent", "graphite", storage)).current.id, "teal");
 });
 
 test("the picker works without storage", () => {
   const blocked = { getItem() { throw new Error("blocked"); }, setItem() { throw new Error("blocked"); } };
-  const picker = new AccentPicker(fakeDocument(), blocked);
+  const picker = new AccentPicker(fakeDocument(), new Preference("accent", "graphite", blocked));
   assert.equal(picker.current.id, "graphite");
   picker.choose("pink");
   assert.equal(picker.current.id, "pink");

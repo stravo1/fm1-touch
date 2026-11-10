@@ -6,7 +6,8 @@
 import { fetchPackage, hubNewcomers, hubCardUrl } from "./fwsc.js";
 import { SaveStore, packageHash, changedSectors, packSectors, exportSave, importSave } from "./persistence.js";
 import { tryOutOf, loadTryOut } from "./tryout.js";
-import { hitNear, KnobDrag, POT_PER_PX, TOUCH_SLOP, knobTravel } from "./touch.js";
+import { hitNear, KnobDrag, TOUCH_SLOP, knobTravel, knobSensitivity, knobStep, potPerPx } from "./touch.js";
+import { haptics } from "./haptics.js";
 
 const CLOCKS = [60, 80, 100, 120, 160, 200, 240];
 // The device this page is for: the FM-1 (index.html) or the SMK-37 (smk37/index.html, <html
@@ -393,7 +394,7 @@ canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 canvas.addEventListener("pointerdown", (e) => {
   const [x, y] = at(e);
   const slop = e.pointerType === "touch" ? TOUCH_SLOP * W / canvas.getBoundingClientRect().width : 0;
-  const p = { grab: hitNear(ui.panel_hit, x, y, slop), lastX: e.clientX, lastY: e.clientY, knob: new KnobDrag(), held: -1 };
+  const p = { grab: hitNear(ui.panel_hit, x, y, slop), lastX: e.clientX, lastY: e.clientY, knob: new KnobDrag(knobStep(knobSensitivity.value)), held: -1 };
   pointers.set(e.pointerId, p);
   canvas.setPointerCapture(e.pointerId);
   if (p.grab >= 100 && p.grab < 200) {
@@ -401,6 +402,7 @@ canvas.addEventListener("pointerdown", (e) => {
     // SMK-37: a key hit further down sounds harder
     if (board === 1 && p.held < NKEY) setVelocity(ui.panel_hit_y());
     press(p.held);
+    haptics.press();
   } else if (board === 1 && p.grab >= 200) slide(p, y);
 });
 // SMK-37: a pad pressed (harder the lower it is hit), a fader or a wheel dragged
@@ -421,14 +423,17 @@ canvas.addEventListener("pointermove", (e) => {
       p.held = h - 100;
       if (board === 1) setVelocity(ui.panel_hit_y());
       press(p.held);
+      haptics.press();
     }
   } else if (board === 1 && p.grab >= 300) {
     slide(p, y);
   } else if (p.grab >= 0 && p.grab < (board === 1 ? 8 : 7)) {
     const clicks = p.knob.clicks(e.clientX - p.lastX, e.clientY - p.lastY);
-    if (clicks) turn(p.grab, clicks);
+    if (clicks) { turn(p.grab, clicks); haptics.knob(); }
   } else if (board === 0 && p.grab === 7) {
-    setPot(pot + knobTravel(e.clientX - p.lastX, e.clientY - p.lastY) * POT_PER_PX);
+    const notch = pot >> 6;                    // (MASTER ticks every 64 of its 1024 steps)
+    setPot(pot + knobTravel(e.clientX - p.lastX, e.clientY - p.lastY) * potPerPx(knobSensitivity.value));
+    if (pot >> 6 !== notch) haptics.knob();
   }
   p.lastX = e.clientX;
   p.lastY = e.clientY;

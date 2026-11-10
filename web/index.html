@@ -59,6 +59,17 @@
 
     <div class="group">
       <div class="control">
+        <span class="label"><label for="knob-sensitivity">Knob sensitivity</label><span id="knob-sensitivity-value" class="value"></span></span>
+        <input type="range" id="knob-sensitivity" class="slider">
+      </div>
+      <label class="control switch-row">
+        <span class="switch-text"><span class="text">Haptics</span><span class="hint">A tap of feedback on knob turns and button presses</span></span>
+        <input type="checkbox" id="haptics" class="switch" role="switch">
+      </label>
+    </div>
+
+    <div class="group">
+      <div class="control">
         <span class="label" id="accent-label">Color</span>
         <div id="accents" class="swatches" role="radiogroup" aria-labelledby="accent-label"></div>
       </div>

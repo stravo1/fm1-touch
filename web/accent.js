@@ -1,6 +1,7 @@
 // The synth's color: its body, and the accent of the page around it. A set of colors to choose
 // from, kept in this browser. <div id="accents"></div> gets one swatch per color. main.js paints
 // the body when the "bodycolor" event fires on the document.
+import { Preference } from "./preferences.js";
 const GRAPHITE_BODY = ["#5e6166", "#4a4d52"];    // (the upstream panel's own gray)
 
 // A colored body: the color darkened, so the panel's light labels stay readable on it.
@@ -19,24 +20,19 @@ export const ACCENTS = [
   { id: "lime", name: "Lime", color: "#a3e635" },
 ].map((accent) => ({ body: bodyOf(accent.color), ...accent }));
 export const ON_ACCENT = "#171717";
-const KEY = "fm1-touch.accent";
 
 export const accentOf = (id) => ACCENTS.find((a) => a.id === id) || ACCENTS[0];
 
 export class AccentPicker {
-  constructor(root, storage) {
+  constructor(root, preference) {
     this.root = root;
-    this.storage = storage;
-    this.current = accentOf(this.read());
-  }
-
-  read() {
-    try { return this.storage?.getItem(KEY); } catch { return null; }   // (private mode)
+    this.preference = preference;
+    this.current = accentOf(preference.value);
   }
 
   choose(id) {
     this.current = accentOf(id);
-    try { this.storage?.setItem(KEY, this.current.id); } catch { /* private mode: this visit only */ }
+    this.preference.set(this.current.id);
     this.apply();
   }
 
@@ -68,6 +64,5 @@ export class AccentPicker {
 }
 
 if (typeof document !== "undefined") {
-  const storage = (() => { try { return localStorage; } catch { return null; } })();
-  new AccentPicker(document, storage).render(document.getElementById("accents"));
+  new AccentPicker(document, new Preference("accent", ACCENTS[0].id)).render(document.getElementById("accents"));
 }
