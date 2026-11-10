@@ -1,0 +1,54 @@
+diff --git a/crates/fm1-live/src/panel.rs b/crates/fm1-live/src/panel.rs
+index 6f3818a..7411c2c 100644
+--- a/crates/fm1-live/src/panel.rs
++++ b/crates/fm1-live/src/panel.rs
+@@ -224,9 +224,14 @@ pub fn text(buf: &mut [u32], cx: f32, y: f32, s: &str, scale: usize, color: u32)
+ 
+ /// The parts that never change: body, trays, bezel, labels.
+ pub fn base() -> Vec<u32> {
++    base_with(BODY_TOP, BODY_BOT)
++}
++
++/// `base`, with the body in other colours (the top and the bottom of its gradient).
++pub fn base_with(body_top: u32, body_bot: u32) -> Vec<u32> {
+     canvas(W);
+     let mut b = vec![ROOM; W * H];
+-    rrect(&mut b, 14.0, 14.0, (W - 28) as f32, (H - 28) as f32, 30.0, BODY_TOP, BODY_BOT);
++    rrect(&mut b, 14.0, 14.0, (W - 28) as f32, (H - 28) as f32, 30.0, body_top, body_bot);
+     // screen bezel
+     rrect(&mut b, 352.0, 24.0, 516.0, 516.0, 22.0, 0x0e0e10, 0x0b0b0c);
+     // OCT tray, button tray, keyboard tray
+diff --git a/crates/fm1-web/src/lib.rs b/crates/fm1-web/src/lib.rs
+index 2f0ebc1..8ad8996 100644
+--- a/crates/fm1-web/src/lib.rs
++++ b/crates/fm1-web/src/lib.rs
+@@ -585,6 +585,8 @@ static mut PANEL_DOWN: [bool; 64] = [false; 64];
+ static mut PANEL_ENC: [i32; 8] = [0; 8];
+ static mut PANEL_TURN: [u32; 9] = [0; 9];
+ static mut PANEL_POT: u16 = 900;
++/// The FM-1's body colours: the top and the bottom of its gradient (0xRRGGBB)
++static mut PANEL_BODY: [u32; 2] = [panel::BODY_TOP, panel::BODY_BOT];
+ /// Which panel the page draws: 0 the FM-1's, 1 the SMK-37's.
+ static mut PANEL_BOARD: u32 = 0;
+ /// SMK-37: the analog inputs as set (fm1_soc::smk's ANALOG_* indices) and the pads' colours
+@@ -650,6 +652,11 @@ pub extern "C" fn panel_set(kind: u32, i: u32, v: i32) {
+             // SMK-37: an analog input as set (ANALOG_* index), a pad's colour
+             4 if i < 23 => PANEL_ANALOG[i as usize] = v.clamp(0, 1023) as u16,
+             5 if i < 16 => PANEL_PADS[i as usize] = v as u32,
++            // the FM-1's body colour (0 top, 1 bottom): the static parts are drawn again
++            6 if i < 2 => {
++                PANEL_BODY[i as usize] = v as u32 & 0xffffff;
++                PANEL_BASE = Vec::new();
++            }
+             _ => {}
+         }
+     }
+@@ -662,7 +669,7 @@ pub extern "C" fn panel_draw() -> *const u8 {
+     unsafe {
+         let smk = PANEL_BOARD == 1;
+         if PANEL_BASE.is_empty() {
+-            PANEL_BASE = if smk { panel_smk::base() } else { panel::base() };
++            PANEL_BASE = if smk { panel_smk::base() } else { panel::base_with(PANEL_BODY[0], PANEL_BODY[1]) };
+             PANEL_BUF = vec![0; PANEL_BASE.len()];
+         }
+         if PANEL_LCD.is_empty() {

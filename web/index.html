@@ -36,6 +36,12 @@
   <button type="button" id="perfwarn-close" class="button icon-only ghost" aria-label="Dismiss"><span data-icon="x"></span></button>
 </div>
 
+<div id="update" class="alert info" role="status" hidden>
+  <span data-icon="refresh-cw" class="alert-icon"></span>
+  <p class="alert-body">A new version is ready.</p>
+  <button type="button" id="update-reload" class="button solid">Reload</button>
+</div>
+
 <section id="sheet" class="dialog" aria-labelledby="title">
   <header class="dialog-head">
     <h1 id="title">FM-1</h1>
@@ -118,6 +124,7 @@
 
 <script type="module" src="icons.js"></script>
 <script type="module" src="accent.js"></script>
+<script type="module" src="update.js"></script>
 <script type="module" src="main.js"></script>
 </body>
 </html>

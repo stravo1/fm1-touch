@@ -59,7 +59,8 @@ p { margin: 0; }
 .input:focus-visible { outline: none; border-color: var(--outline-gray-3); background-color: var(--surface-gray-3); }
 .grow { flex: 1 1 140px; }
 .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
-.swatch { width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; background: var(--swatch);
+.swatch { width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+          background: radial-gradient(circle, var(--swatch-accent) 0 4px, var(--swatch) 4.5px);
           box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
 .swatch[aria-checked="true"] { box-shadow: 0 0 0 2px var(--surface-modal), 0 0 0 4px var(--swatch); }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -104,6 +105,9 @@ details[open] .chevron { transform: rotate(90deg); }
          background: var(--surface-amber-1); border: 1px solid var(--outline-amber-2); border-radius: var(--radius-xl); }
 .alert[hidden] { display: none; }
 .alert-icon { color: var(--ink-amber-3); margin-top: 1px; }
+.alert.info { align-items: center; width: auto; max-width: calc(100vw - 120px); background: var(--surface-modal);
+              border-color: var(--outline-gray-2); box-shadow: var(--shadow-2xl); }
+.alert.info .alert-icon { color: var(--accent); margin-top: 0; }
 .alert-body { flex: 1; display: flex; flex-direction: column; gap: 10px; color: var(--ink-gray-8); }
 
 /* ---------------------------------------------------------------- a phone or tablet held upright */

@@ -108,9 +108,17 @@ function setBoard(b) {
   // the synth's width follows the room left below the header and the bar (index.html's canvas rule)
   document.documentElement.style.setProperty("--aspect", String(W / H));
   document.documentElement.dataset.board = b ? "smk37" : "fm1";
+  paintBody();
   down.fill(0);
   encClicks.fill(0);
 }
+// the body color chosen in settings (accent.js): "rrggbb,rrggbb", the top and the bottom
+function paintBody() {
+  const body = document.documentElement.dataset.body;
+  if (!body || board !== 0) return;
+  body.split(",").forEach((rgb, i) => ui.panel_set(6, i, parseInt(rgb, 16)));
+}
+document.addEventListener("bodycolor", paintBody);
 setBoard(DEV.board);
 
 // ---------------------------------------------------------------- firmware and clock
@@ -1125,6 +1133,3 @@ document.getElementById("open-saved-version").addEventListener("click", action(a
   if (node) await boot();
   else status.textContent = `${record.name} saved version ready: click Start`;
 }));
-
-// installable and playable offline (sw.js)
-navigator.serviceWorker?.register("sw.js");

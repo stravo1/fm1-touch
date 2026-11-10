@@ -24,6 +24,14 @@ The page is a progressive web app (PWA). Install it to get a full-screen app wit
 
 After you play a firmware once, the app also works offline. The browser keeps each firmware that you played.
 
+The installed app updates itself. When it comes back to the screen, it checks for a new version. If you
+have not pressed Start, it reloads. If you are playing, it shows a **Reload** banner.
+
+## Colors
+
+Settings has a row of colors. A color changes the body of the synth and the accent of the page.
+**Graphite** is the original gray body. The browser keeps your choice.
+
 Links keep a setup, for example `?fw=mono2k&mhz=100`.
 
 ## How it is built
@@ -32,7 +40,10 @@ The `upstream/` folder is the emulator, pinned as a git submodule. This reposito
 
 - `web/index.html` and `web/style.css`: the page, styled with the Frappe UI Espresso tokens (dark mode).
 - `web/icons.js`: the Lucide icons that the page uses, inline so they work offline.
-- `web/accent.js`: the accent color picker in settings. The browser keeps the chosen color.
+- `web/accent.js`: the color picker in settings. A color sets the synth body and the page accent.
+- `web/update.js`: the update check for the installed app.
+- `patches/`: changes to upstream that the build applies, and then removes. `panel-body-color.patch` lets
+  the page set the body color of the panel.
 - `web/main.js`: a fork of `upstream/web/main.js`, with the touch input and without the upstream page sections.
 - `web/touch.js`: the hit test and knob drag for fingers.
 - `web/sw.js`, `web/manifest.webmanifest`: the service worker and manifest that make the page an installable app.
