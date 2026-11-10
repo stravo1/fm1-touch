@@ -12,8 +12,9 @@ settings sheet behind the gear button.
 - Drag a knob up or right to turn it clockwise. The rate is the same on every screen size.
   Set **Knob sensitivity** in settings, from 0.5× to 2×.
 - Each knob click and each button or key press gives a short haptic tap. On Android, the page uses the
-  Vibration API. On iPhone, Safari has no Vibration API, so web-haptics uses the system tick of a switch control. Turn
-  **Haptics** off in settings.
+  Vibration API. On iPhone, Safari has no Vibration API, and since iOS 26.5 only a real finger on a switch
+  control ticks. So an invisible switch covers the synth: a knob tick lands on the finger's next movement,
+  and a press ticks when the finger lifts. Turn **Haptics** off in settings.
 - A finger near a control, but not exactly on it, still finds it.
 - Play with many fingers at the same time.
 - Hold the device in landscape. In portrait, the page asks you to turn the device.
@@ -47,8 +48,8 @@ The `upstream/` folder is the emulator, pinned as a git submodule. This reposito
 - `web/accent.js`: the color picker in settings. A color sets the synth body and the page accent.
 - `web/combobox.js`: the searchable firmware picker, in the style of the Frappe UI Autocomplete.
 - `web/update.js`: the update check for the installed app.
-- `web/haptics.js`: the haptic taps, through [web-haptics](https://github.com/lochie/web-haptics) (MIT),
-  vendored unchanged in `web/vendor/web-haptics/`. `web/preferences.js`: the settings that the browser keeps.
+- `web/haptics.js`: the haptic taps, through [haptick](https://github.com/jcruzfff/haptick) (MIT),
+  bundled from its source in `web/vendor/haptick/` (see `SOURCE.txt`). `web/preferences.js`: the settings that the browser keeps.
 - `patches/`: changes to upstream that the build applies, and then removes. `panel-body-color.patch` lets
   the page set the body color of the panel.
 - `web/main.js`: a fork of `upstream/web/main.js`, with the touch input and without the upstream page sections.

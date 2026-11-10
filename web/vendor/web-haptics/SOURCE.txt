@@ -1,2 +1,0 @@
-web-haptics 0.0.6 (MIT) by lochie: https://github.com/lochie/web-haptics
-The published ES module from npm (dist/index.mjs and its chunk), unchanged.

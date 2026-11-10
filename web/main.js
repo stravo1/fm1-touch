@@ -389,14 +389,16 @@ const holds = new Uint8Array(64);          // pointers holding each key / button
 function press(id) { if (holds[id]++ === 0) setKey(id, true); }
 function unpress(id) { if (holds[id] && --holds[id] === 0) setKey(id, false); }
 const pointers = new Map();                // pointerId -> { grab, lastX, lastY, knob, held }
+// (on the stage, not the canvas: on iPhone haptick's invisible switch covers the canvas and takes
+// the touch, so it ticks; the pointer events bubble up here)
 // a long press must hold the control, not open the browser's menu
-canvas.addEventListener("contextmenu", (e) => e.preventDefault());
-canvas.addEventListener("pointerdown", (e) => {
+stage.addEventListener("contextmenu", (e) => e.preventDefault());
+stage.addEventListener("pointerdown", (e) => {
   const [x, y] = at(e);
   const slop = e.pointerType === "touch" ? TOUCH_SLOP * W / canvas.getBoundingClientRect().width : 0;
   const p = { grab: hitNear(ui.panel_hit, x, y, slop), lastX: e.clientX, lastY: e.clientY, knob: new KnobDrag(knobStep(knobSensitivity.value)), held: -1 };
   pointers.set(e.pointerId, p);
-  canvas.setPointerCapture(e.pointerId);
+  e.target.setPointerCapture(e.pointerId);
   if (p.grab >= 100 && p.grab < 200) {
     p.held = p.grab - 100;
     // SMK-37: a key hit further down sounds harder
@@ -411,7 +413,7 @@ function slide(p, y) {
   else if (p.grab < 400) setAnalog(16 + p.grab - 300, ui.panel_slide(p.grab - 300, y));
   else setAnalog(p.grab === 400 ? 20 : 21, ui.panel_slide(p.grab === 400 ? 4 : 5, y));
 }
-canvas.addEventListener("pointermove", (e) => {
+stage.addEventListener("pointermove", (e) => {
   const p = pointers.get(e.pointerId);
   if (!p || p.grab < 0) return;
   const [x, y] = at(e);
@@ -446,11 +448,11 @@ const release = (e) => {
   if (board === 1 && p.grab === 400) setAnalog(20, PITCH_REST);                   // the pitch wheel springs back
   pointers.delete(e.pointerId);
 };
-canvas.addEventListener("pointerup", release);
-canvas.addEventListener("pointercancel", release);
-canvas.addEventListener("lostpointercapture", release);
+stage.addEventListener("pointerup", release);
+stage.addEventListener("pointercancel", release);
+stage.addEventListener("lostpointercapture", release);
 let wheelAcc = 0;
-canvas.addEventListener("wheel", (e) => {
+stage.addEventListener("wheel", (e) => {
   const [x, y] = at(e);
   const h = ui.panel_hit(x, y);
   if (board === 1 && h >= 300 && h < 304) {          // SMK-37: a fader scrolled
