@@ -1,50 +1,55 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { Haptics } from "./haptics.js";
+import { Haptics, PULSES } from "./haptics.js";
 import { Preference } from "./preferences.js";
+import { WebHaptics } from "./vendor/web-haptics/index.mjs";
 
-function setup({ on = true, vibrate = true, tick = false } = {}) {
-  const pulses = [], ticks = [];
+function setup({ on = true, isAvailable = true } = {}) {
+  const sent = [];
   let time = 0;
-  const haptics = new Haptics(new Preference("haptics", on, null), {
-    vibrate: vibrate ? (ms) => pulses.push(ms) : null,
-    tick: tick ? () => ticks.push(time) : null,
-    now: () => time,
-  });
-  return { haptics, pulses, ticks, advance: (ms) => { time += ms; } };
+  const haptics = new Haptics(new Preference("haptics", on, null), { trigger: (pattern) => sent.push(pattern), isAvailable, now: () => time });
+  return { haptics, sent, advance: (ms) => { time += ms; } };
 }
 
 test("a button press is a longer pulse than a knob click", () => {
-  const { haptics, pulses } = setup();
+  const { haptics, sent } = setup();
   haptics.press();
   haptics.knob();
-  assert.deepEqual(pulses, [12, 5]);
+  assert.deepEqual(sent, [PULSES.press, PULSES.knob]);
+  assert.ok(PULSES.press[0].duration > PULSES.knob[0].duration);
 });
 
 test("a fast knob turn gives one pulse per 30 ms, not one per click", () => {
-  const { haptics, pulses, advance } = setup();
+  const { haptics, sent, advance } = setup();
   haptics.knob();
   advance(10);
   haptics.knob();
   advance(25);
   haptics.knob();
-  assert.equal(pulses.length, 2);
+  assert.equal(sent.length, 2);
 });
 
-test("off in settings, nothing pulses", () => {
-  const { haptics, pulses } = setup({ on: false });
-  haptics.press();
-  haptics.knob();
-  assert.deepEqual(pulses, []);
+test("off in settings, or no haptics on the device, nothing pulses", () => {
+  for (const options of [{ on: false }, { isAvailable: false }]) {
+    const { haptics, sent } = setup(options);
+    haptics.press();
+    haptics.knob();
+    assert.deepEqual(sent, []);
+  }
 });
 
-test("without the Vibration API, the switch tick stands in", () => {
-  const { haptics, ticks } = setup({ vibrate: false, tick: true });
-  haptics.press();
-  assert.equal(ticks.length, 1);
-  assert.equal(haptics.isAvailable, true);
-});
-
-test("a device with neither has no haptics to offer", () => {
-  assert.equal(setup({ vibrate: false, tick: false }).haptics.isAvailable, false);
+test("on Android, web-haptics sends the pulse to the Vibration API at full length", async () => {
+  const vibrations = [];
+  const navigatorBefore = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+  const supportedBefore = WebHaptics.isSupported;
+  Object.defineProperty(globalThis, "navigator", { configurable: true, value: { vibrate: (p) => vibrations.push(p) } });
+  WebHaptics.isSupported = true;            // (the library reads this once, when it loads)
+  try {
+    await new WebHaptics().trigger(PULSES.press);
+    await new WebHaptics().trigger(PULSES.knob);
+    assert.deepEqual(vibrations, [[12], [5]]);
+  } finally {
+    WebHaptics.isSupported = supportedBefore;
+    Object.defineProperty(globalThis, "navigator", navigatorBefore);
+  }
 });

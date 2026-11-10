@@ -11,7 +11,7 @@ git -C "$ROOT/upstream" apply "${PATCHES[@]}"
 trap 'git -C "$ROOT/upstream" apply -R "${PATCHES[@]}"' EXIT
 "$ROOT/upstream/web/build.sh" "$OUT" >/dev/null
 rm -rf "$OUT/smk37" "$OUT/fm1-emu-report.pdf" "$OUT/og.png"
-cp "$ROOT"/web/{index.html,style.css,main.js,touch.js,icons.js,accent.js,combobox.js,update.js,preferences.js,haptics.js,manifest.webmanifest,icon.svg,icon-192.png,icon-512.png} "$OUT/"
+cp -R "$ROOT"/web/{index.html,style.css,main.js,touch.js,icons.js,accent.js,combobox.js,update.js,preferences.js,haptics.js,vendor,manifest.webmanifest,icon.svg,icon-192.png,icon-512.png} "$OUT/"
 # the deploy's version: installed apps check it to update (web/update.js), and the service worker
 # gets a new cache with it
 VERSION="${VERSION:-$(git -C "$ROOT" rev-parse --short HEAD)}"

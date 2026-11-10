@@ -5,7 +5,7 @@
 // of its own; the old cache goes on activate. update.js finds the deploy and reloads the page.
 const VERSION = "dev";
 const CACHE = `fm1-touch-${VERSION}`;
-const SHELL = ["./", "index.html", "style.css", "main.js", "touch.js", "icons.js", "accent.js", "combobox.js", "update.js", "preferences.js", "haptics.js", "fwsc.js",
+const SHELL = ["./", "index.html", "style.css", "main.js", "touch.js", "icons.js", "accent.js", "combobox.js", "update.js", "preferences.js", "haptics.js", "vendor/web-haptics/index.mjs", "vendor/web-haptics/chunk-4NSAIXAB.mjs", "fwsc.js",
   "persistence.js", "tryout.js", "worklet.js", "jit.js", "firmwares.json", "fm1_web.wasm", "manifest.webmanifest",
   "icon.svg", "icon-192.png", "icon-512.png"];
 

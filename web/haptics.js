@@ -1,54 +1,42 @@
-// A short tap of feedback for a knob click or a button press. Android: the Vibration API.
-// iPhone (Safari 18 and later): Safari has no Vibration API, but switching an <input switch>
-// gives the system's tick, so a hidden one is switched.
+// A short tap of feedback for a knob click or a button press, through web-haptics
+// (vendor/web-haptics): the Vibration API on Android, and on iPhone, where Safari has no
+// Vibration API, the system tick of a hidden switch control.
+import { WebHaptics } from "./vendor/web-haptics/index.mjs";
 import { Preference } from "./preferences.js";
 
-const PULSE_MS = { press: 12, knob: 5 };
-const KNOB_GAP_MS = 30;                    // (a fast turn: one tick per this, not one per click)
+// (full intensity: on Android web-haptics drives a lower one as on/off pulses, too short to feel here)
+export const PULSES = { press: [{ duration: 12, intensity: 1 }], knob: [{ duration: 5, intensity: 1 }] };
+const KNOB_GAP_MS = 30;                    // (a fast turn: one tap per this, not one per click)
 
 export class Haptics {
-  constructor(preference, { vibrate, tick, now = () => performance.now() }) {
+  constructor(preference, { trigger, isAvailable, now = () => performance.now() }) {
     this.preference = preference;
-    this.vibrate = vibrate;
-    this.tick = tick;
+    this.trigger = trigger;
+    this.isAvailable = isAvailable;
     this.now = now;
     this.lastKnob = -Infinity;
   }
 
-  get isAvailable() { return Boolean(this.vibrate || this.tick); }
-
-  press() { this.pulse(PULSE_MS.press); }
+  press() { this.pulse(PULSES.press); }
 
   knob() {
     const now = this.now();
     if (now - this.lastKnob < KNOB_GAP_MS) return;
     this.lastKnob = now;
-    this.pulse(PULSE_MS.knob);
+    this.pulse(PULSES.knob);
   }
 
-  pulse(ms) {
-    if (!this.preference.value) return;
-    if (this.vibrate) this.vibrate(ms);
-    else this.tick?.();
+  pulse(pattern) {
+    if (this.isAvailable && this.preference.value) this.trigger(pattern);
   }
-}
-
-// Safari's switch: a hidden <label><input type="checkbox" switch></label>, clicked to tick
-function switchTick(document) {
-  const label = document.createElement("label");
-  const input = Object.assign(document.createElement("input"), { type: "checkbox" });
-  input.setAttribute("switch", "");
-  label.append(input);
-  label.style.display = "none";
-  document.body.append(label);
-  return () => label.click();
 }
 
 function browserHaptics() {
-  if (typeof document === "undefined") return new Haptics(new Preference("haptics", false, null), {});
-  const vibrate = typeof navigator.vibrate === "function" ? (ms) => navigator.vibrate(ms) : null;
-  const isApple = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent));
-  return new Haptics(new Preference("haptics", true), { vibrate, tick: !vibrate && isApple ? switchTick(document) : null });
+  if (typeof document === "undefined") return new Haptics(new Preference("haptics", false, null), { trigger() {}, isAvailable: false });
+  const engine = new WebHaptics();
+  // (no Vibration API and no touch screen, such as a desktop Mac: nothing to feel)
+  const isAvailable = WebHaptics.isSupported || matchMedia("(pointer: coarse)").matches;
+  return new Haptics(new Preference("haptics", true), { trigger: (pattern) => engine.trigger(pattern), isAvailable });
 }
 
 export const haptics = browserHaptics();
