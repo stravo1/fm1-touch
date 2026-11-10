@@ -37,3 +37,9 @@ test("arrow keys wrap around the ends", () => {
   assert.equal(nextIndex(0, -1, 3), 2);
   assert.equal(nextIndex(0, 1, 0), -1);
 });
+
+test("before the catalog comes, the picker says it is loading and does not open", async () => {
+  const { triggerState } = await import("./combobox.js");
+  assert.deepEqual(triggerState(0, undefined), { text: "Loading firmwares…", isLoading: true });
+  assert.deepEqual(triggerState(70, "MONO2K 1.9.1"), { text: "MONO2K 1.9.1", isLoading: false });
+});

@@ -21,6 +21,12 @@ export function filterGroups(groups, query) {
     .filter((group) => group.options.length);
 }
 
+// The trigger's text, and whether it opens: main.js fills the select only once the catalog has come.
+export function triggerState(optionCount, selectedText) {
+  if (!optionCount) return { text: "Loading firmwares…", isLoading: true };
+  return { text: selectedText || "Choose a firmware", isLoading: false };
+}
+
 // The highlighted row after an arrow key: it wraps around the ends.
 export const nextIndex = (index, step, count) => (count ? (index + step + count) % count : -1);
 
@@ -52,7 +58,9 @@ export class Combobox {
   }
 
   refresh() {
-    const text = this.select.selectedOptions[0]?.text || "Choose a firmware";
+    const { text, isLoading } = triggerState(this.select.options.length, this.select.selectedOptions[0]?.text);
+    this.trigger.disabled = isLoading;
+    this.trigger.setAttribute("aria-busy", String(isLoading));
     this.trigger.innerHTML = `<span class="combobox-value"></span>${iconSvg("chevron-down")}`;
     this.trigger.firstChild.textContent = text;
   }
