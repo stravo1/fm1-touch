@@ -20,6 +20,20 @@ settings sheet behind the gear button.
 - Hold the device in landscape. In portrait, the page asks you to turn the device.
 - On a touch device, Start goes full screen.
 
+## Keyboard controls
+
+Each note key, button and knob has a key on the computer keyboard. The label on each control shows
+its key. Turn **Key labels** off or on in settings. A mouse or trackpad turns them on by default.
+
+- The note keys are one piano run. The A row (A to Enter) plays the white keys from F3 to C5. The
+  Q row plays the black keys above them. Hold Shift to play the same keys one octave up, to G5.
+  A#4 is Shift+R, because `[` turns knobs.
+- The number keys 1 to 8 choose a knob. The Z row plays FX to SEQ.
+- The arrow keys are OCT- and OCT+. Space is PLAY, and `\` is REC.
+- To turn a knob, press its key, then press `[` or `]`. A ring shows the chosen knob.
+  A drag also chooses a knob. MASTER moves one notch for each press.
+- The keys stay in the same place on every keyboard layout.
+
 ## Install it as an app
 
 The page is a progressive web app (PWA). Install it to get a full-screen app without the browser bar:
@@ -54,6 +68,7 @@ The `upstream/` folder is the emulator, pinned as a git submodule. This reposito
   the page set the body color of the panel.
 - `web/main.js`: a fork of `upstream/web/main.js`, with the touch input and without the upstream page sections.
 - `web/touch.js`: the hit test and knob drag for fingers.
+- `web/keyboard.js`: the computer keyboard keys for each control, and the key labels over the panel.
 - `web/sw.js`, `web/manifest.webmanifest`: the service worker and manifest that make the page an installable app.
 
 ```sh

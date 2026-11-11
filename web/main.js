@@ -8,6 +8,7 @@ import { SaveStore, packageHash, changedSectors, packSectors, exportSave, import
 import { tryOutOf, loadTryOut } from "./tryout.js";
 import { hitNear, KnobDrag, TOUCH_SLOP, knobTravel, knobSensitivity, knobStep, potPerPx } from "./touch.js";
 import { haptics } from "./haptics.js";
+import { FM1_KEYS, TURN_CODES, KeyLabelLayer, controlBoxes, keyLabels } from "./keyboard.js";
 
 const CLOCKS = [60, 80, 100, 120, 160, 200, 240];
 // The device this page is for: the FM-1 (index.html) or the SMK-37 (smk37/index.html, <html
@@ -86,6 +87,8 @@ const wasm = await (await fetch("fm1_web.wasm")).arrayBuffer();   // the worklet
 const ui = (await WebAssembly.instantiate(wasm, { env: { fm1_jit_compile: () => 0 } })).instance.exports;
 // the panel drawn: 0 the FM-1's, 1 the SMK-37's (setBoard; the canvas takes its size)
 let W = 0, H = 0, board = -1;
+let labels = null;           // the key labels over the panel (FM-1), made on the first frame that shows them
+let chosenKnob = 0;          // the knob that [ and ] turn (FM-1: a panel_hit knob, 7 MASTER)
 
 let node = null;
 let frame = null;            // the latest LCD + LEDs from the audio thread
@@ -112,6 +115,7 @@ function setBoard(b) {
   paintBody();
   down.fill(0);
   encClicks.fill(0);
+  labels = null;
 }
 // the body color chosen in settings (accent.js): "rrggbb,rrggbb", the top and the bottom
 function paintBody() {
@@ -343,6 +347,10 @@ function draw() {
   const p = ui.panel_draw();
   const img = new ImageData(new Uint8ClampedArray(mem(), p, W * H * 4), W, H);
   ctx.putImageData(img, 0, 0);
+  if (board === 0 && keyLabels.value) {
+    labels ??= new KeyLabelLayer(FM1_KEYS, controlBoxes(ui.panel_hit, W, H));
+    labels.draw(ctx, chosenKnob, getComputedStyle(document.documentElement).getPropertyValue("--accent"));
+  }
   requestAnimationFrame(draw);
 }
 requestAnimationFrame(draw);
@@ -399,6 +407,7 @@ stage.addEventListener("pointerdown", (e) => {
   const p = { grab: hitNear(ui.panel_hit, x, y, slop), lastX: e.clientX, lastY: e.clientY, knob: new KnobDrag(knobStep(knobSensitivity.value)), held: -1 };
   pointers.set(e.pointerId, p);
   e.target.setPointerCapture(e.pointerId);
+  if (board === 0 && p.grab >= 0 && p.grab <= 7) chosenKnob = p.grab;
   if (p.grab >= 100 && p.grab < 200) {
     p.held = p.grab - 100;
     // SMK-37: a key hit further down sounds harder
@@ -468,42 +477,60 @@ stage.addEventListener("wheel", (e) => {
   while (wheelAcc <= -40) { wheelAcc += 40; turn(h, -1); }
 }, { passive: false });
 
-// computer keyboard: A W S E D F T G Y H U J K O L P ; ' = C4..F5, Z X OCT- OCT+, Space PLAY,
-// R REC, 1..0 FX SCL ENV LFO EDIT GLO HOME SAVE ARP SEQ, arrows / , . encoders. SMK-37: the same
-// notes (keys 12..29), Z X OCTAVE- / +, Space SEQ PLAY, R SEQ REC, 1..8 the top pads, arrows K1 / K2,
-// , . K3
-const PIANO = "awsedftgyhujkolp;'";
-const BUTTONS = [
-  { z: 0, x: 1, " ": 12, r: 13, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7, 7: 8, 8: 9, 9: 10, 0: 11 },
-  { z: BTN0 + 4, x: BTN0 + 5, " ": BTN0 + 16, r: BTN0 + 17 },
-];
-const ENC_KEYS = { ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowDown: [1, -1], ArrowUp: [1, 1], ",": [2, -1], ".": [2, 1] };
-function keyId(k) {
-  const i = PIANO.indexOf(k.toLowerCase());
-  if (i >= 0) return (board === 1 ? 12 : 21) + i;
-  const b = BUTTONS[board === 1 ? 1 : 0][k.toLowerCase()];
-  return b === undefined ? -1 : b;
+// computer keyboard. FM-1: every control has a key (keyboard.js), and [ ] turn the chosen knob
+// (MASTER: one notch of its 16). SMK-37: A W S E D F T G Y H U J K O L P ; ' notes (keys 12..29),
+// Z X OCTAVE- / +, Space SEQ PLAY, R SEQ REC, 1..8 the top pads, arrows K1 / K2, , . K3
+function turnChosen(clicks) {
+  if (chosenKnob === 7) setPot(pot + clicks * 64);
+  else turn(chosenKnob, clicks);
 }
-const padKey = (k) => (board === 1 && /^[1-8]$/.test(k) ? Number(k) - 1 : -1);
-// (typing in a field, such as the firmware search, is not playing)
-const isTyping = (e) => Boolean(e.target.closest?.("input, select, textarea"));
-addEventListener("keydown", (e) => {
-  if (e.metaKey || e.ctrlKey || isTyping(e)) return;
-  if (ENC_KEYS[e.key]) { e.preventDefault(); turn(...ENC_KEYS[e.key]); return; }
+function fm1KeyDown(e) {
+  if (e.code in TURN_CODES) { turnChosen(TURN_CODES[e.code]); return true; }
+  const knob = FM1_KEYS.knob(e.code);
+  if (knob >= 0) { chosenKnob = knob; return true; }
+  const id = heldKeys.get(e.code) ?? FM1_KEYS.keyId(e.code, e.shiftKey);
+  if (id >= 0 && !e.repeat) { heldKeys.set(e.code, id); setKey(id, true); }
+  return id >= 0;
+}
+// the note each key plays while held: Shift may change before the key comes up
+const heldKeys = new Map();
+const PIANO = "awsedftgyhujkolp;'";
+const SMK_BUTTONS = { z: BTN0 + 4, x: BTN0 + 5, " ": BTN0 + 16, r: BTN0 + 17 };
+const ENC_KEYS = { ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowDown: [1, -1], ArrowUp: [1, 1], ",": [2, -1], ".": [2, 1] };
+function smkKeyId(k) {
+  const i = PIANO.indexOf(k.toLowerCase());
+  if (i >= 0) return 12 + i;
+  return SMK_BUTTONS[k.toLowerCase()] ?? -1;
+}
+const padKey = (k) => (/^[1-8]$/.test(k) ? Number(k) - 1 : -1);
+function smkKeyDown(e) {
+  if (ENC_KEYS[e.key]) { turn(...ENC_KEYS[e.key]); return true; }
   const pad = padKey(e.key);
-  if (pad >= 0) { e.preventDefault(); if (!e.repeat) setAnalog(pad, 700); return; }
-  const id = keyId(e.key);
-  if (id < 0 || e.repeat) return;
-  e.preventDefault();
-  if (board === 1 && id < NKEY) setVelocity(0.75);
-  setKey(id, true);
+  if (pad >= 0) { if (!e.repeat) setAnalog(pad, 700); return true; }
+  const id = smkKeyId(e.key);
+  if (id < 0) return false;
+  if (!e.repeat) { if (id < NKEY) setVelocity(0.75); setKey(id, true); }
+  return true;
+}
+function smkKeyUp(e) {
+  const pad = padKey(e.key);
+  if (pad >= 0) { setAnalog(pad, 0); return; }
+  const id = smkKeyId(e.key);
+  if (id >= 0) setKey(id, false);
+}
+// (typing in a field, such as the firmware search, is not playing; nor is Space or Enter on a button)
+const isTyping = (e) => Boolean(e.target.closest?.("input, select, textarea")) ||
+  (["Space", "Enter"].includes(e.code) && Boolean(e.target.closest?.("button, summary, a, label")));
+addEventListener("keydown", (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey || isTyping(e)) return;
+  if (board === 1 ? smkKeyDown(e) : fm1KeyDown(e)) e.preventDefault();
 });
 addEventListener("keyup", (e) => {
   if (isTyping(e)) return;
-  const pad = padKey(e.key);
-  if (pad >= 0) { setAnalog(pad, 0); return; }
-  const id = keyId(e.key);
-  if (id >= 0) setKey(id, false);
+  if (board === 1) { smkKeyUp(e); return; }
+  const id = heldKeys.get(e.code);
+  heldKeys.delete(e.code);
+  if (id !== undefined) setKey(id, false);
 });
 
 // ---------------------------------------------------------------- MIDI in (Web MIDI)
